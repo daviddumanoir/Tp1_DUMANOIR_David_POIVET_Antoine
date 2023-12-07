@@ -76,17 +76,42 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
     apt-get install -y iputils-ping
     exit
     ```
-
+6. Configuration des routes :
+    ```bash
+    docker exec -it gateway-container bash
+    ```
+    ```bash
+    ip route replace 10.0.0.0/24 via 10.0.0.3
+    ip route replace 10.0.1.0/24 via 10.0.1.3
+    exit
+    ```
+    
 ## Tests
-- Pinguez la base de données depuis le conteneur passerelle :
+- Pinguez la base de données depuis le conteneur prestashop :
     ```bash
-    docker exec -it gateway-container ping <adresse-IP-conteneur-base-de-donnees>
+    docker exec -it prestashop-container bash
+    ```
+    ```bash
+    apt-get update 
+    apt-get install -y iproute2 
+    apt-get install -y iputils-ping
+    ping 10.0.1.2
+    exit
+    ```
+    
+- Pinguez PrestaShop depuis le conteneur database :
+    ```bash
+    docker exec -it database-container bash
+    ```
+    ```bash
+    apt-get update 
+    apt-get install -y iproute2 
+    apt-get install -y iputils-ping
+    ping 10.0.0.2
+    exit
     ```
 
-- Pinguez PrestaShop depuis le conteneur passerelle :
-    ```bash
-    docker exec -it gateway-container ping <adresse-IP-conteneur-prestashop>
-    ```
+
 
 ## Contributeurs
 - David Dumanoir
