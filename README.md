@@ -59,6 +59,8 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
 4. Installez les outils nécessaires sur le conteneur passerelle :
     ```bash
     docker exec –it gateway-container bash
+    ```
+    ```bash
     apt-get update
     apt-get install –y iproute2
     exit
@@ -67,6 +69,8 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
 5. Installez la commande ping pour les tests :
     ```bash
     docker exec -it gateway-container bash
+    ```
+    ```bash
     apt-get update 
     apt-get install -y iproute2 
     apt-get install -y iputils-ping
@@ -87,5 +91,3 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
 ## Contributeurs
 - David Dumanoir
 - Antoine Poivet
-
-N'hésitez pas à personnaliser ce README pour mieux correspondre à votre projet et à fournir des informations supplémentaires au besoin.
