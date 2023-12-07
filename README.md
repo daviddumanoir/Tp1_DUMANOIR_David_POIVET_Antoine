@@ -22,13 +22,13 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
 
 3. Exécutez le conteneur PostgreSQL :
     ```bash
-    docker run --name database-container -d -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=studentdb -v tp_volume:/var/lib/postgresql/data -p 5433:5432 postgres
+    docker run --name database-container --privileged -d -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=studentdb -v tp_volume:/var/lib/postgresql/data -p 5433:5432 postgres
     docker network connect prestashop-network database-container
     ```
 
 4. Exécutez le conteneur PrestaShop :
     ```bash
-    docker run --name prestashop-container --network prestashop-network -e PRESTASHOP_DATABASE_PASSWORD=admin -d prestashop/prestashop
+    docker run --name prestashop-container --privileged --network prestashop-network -e PRESTASHOP_DATABASE_PASSWORD=admin -d prestashop/prestashop
     docker exec -it prestashop-container bash
     apt-get update
     apt-get install postgresql-client
@@ -52,7 +52,7 @@ Ce référentiel contient la configuration Docker et la mise en place pour le d�
 
 3. Créez et connectez le routeur passerelle :
     ```bash
-    docker run --name gateway-container --network ynov-frontend-network --cap-add NET_ADMIN --cap-add SYS_MODULE --sysctl net.ipv4.ip_forward=1 -v /lib/modules:/lib/modules:ro -d nginx:latest
+    docker run --name gateway-container --privileged --network ynov-frontend-network --cap-add NET_ADMIN --cap-add SYS_MODULE --sysctl net.ipv4.ip_forward=1 -v /lib/modules:/lib/modules:ro -d nginx:latest
     docker network connect ynov-backend-network gateway-container
     ```
 
