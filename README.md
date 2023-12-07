@@ -1,2 +1,91 @@
-# Tp1_DUMANOIR_David_POIVET_Antoine
-Premier TP Noté du cours de Docker
+# Projet Docker - Configuration PrestaShop
+
+## Description
+Ce référentiel contient la configuration Docker et la mise en place pour le déploiement de PrestaShop avec une base de données PostgreSQL, ainsi qu'une configuration réseau à l'aide de Docker Compose. La configuration comprend des réseaux frontal et dorsal, ainsi qu'un routeur passerelle.
+
+## Prérequis
+- Docker installé sur votre système
+- Docker Compose (en option, en fonction de votre configuration)
+
+## Instructions
+
+### Tâche 1 : Configuration de PrestaShop
+1. Téléchargez la dernière image PrestaShop :
+    ```bash
+    docker pull prestashop/prestashop:latest
+    ```
+
+2. Créez un réseau Docker :
+    ```bash
+    docker network create prestashop_network
+    ```
+
+3. Exécutez le conteneur PostgreSQL :
+    ```bash
+    docker run --name database-container -d -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=studentdb -v tp_volume:/var/lib/postgresql/data -p 5433:5432 postgres
+    docker network connect prestashop-network database-container
+    ```
+
+4. Exécutez le conteneur PrestaShop :
+    ```bash
+    docker run --name prestashop-container --network prestashop-network -e PRESTASHOP_DATABASE_PASSWORD=admin -d prestashop/prestashop
+    docker exec -it prestashop-container bash
+    apt-get update
+    apt-get install postgresql-client
+    psql -h database-container -U admin -d studentdb –W
+    ```
+
+### Tâche 2 : Configuration du réseau
+1. Créez des réseaux frontal et dorsal :
+    ```bash
+    docker network create --subnet=10.0.0.0/24 ynov-frontend-network
+    docker network create --subnet=10.0.1.0/24 ynov-backend-network
+    ```
+
+2. Connectez les conteneurs à leurs réseaux respectifs :
+    ```bash
+    docker network connect ynov-frontend-network prestashop-container
+    docker network connect ynov-backend-network database-container
+    docker network disconnect prestashop-network prestashop-container
+    docker network disconnect prestashop-network database-container
+    ```
+
+3. Créez et connectez le routeur passerelle :
+    ```bash
+    docker run --name gateway-container --network ynov-frontend-network --cap-add NET_ADMIN --cap-add SYS_MODULE --sysctl net.ipv4.ip_forward=1 -v /lib/modules:/lib/modules:ro -d nginx:latest
+    docker network connect ynov-backend-network gateway-container
+    ```
+
+4. Installez les outils nécessaires sur le conteneur passerelle :
+    ```bash
+    docker exec –it gateway-container bash
+    apt-get update
+    apt-get install –y iproute2
+    exit
+    ```
+
+5. Installez la commande ping pour les tests :
+    ```bash
+    docker exec -it gateway-container bash
+    apt-get update 
+    apt-get install -y iproute2 
+    apt-get install -y iputils-ping
+    exit
+    ```
+
+## Tests
+- Pinguez la base de données depuis le conteneur passerelle :
+    ```bash
+    docker exec -it gateway-container ping <adresse-IP-conteneur-base-de-donnees>
+    ```
+
+- Pinguez PrestaShop depuis le conteneur passerelle :
+    ```bash
+    docker exec -it gateway-container ping <adresse-IP-conteneur-prestashop>
+    ```
+
+## Contributeurs
+- David Dumanoir
+- Antoine Poivet
+
+N'hésitez pas à personnaliser ce README pour mieux correspondre à votre projet et à fournir des informations supplémentaires au besoin.
